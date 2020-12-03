@@ -98,8 +98,8 @@ static ssize_t mywrite(struct file *file, const char __user *ubuf,size_t count, 
 
         if (convert_dayweek(data.tm_wday, &daystr) && convert_month(data.tm_mon, &monstr))
         {
-        	sprintf(my_timestamp,"Ostatnie resetowanie licznika:   %s %s  %d %02d:%02d:%02d %ld\n",
-        			daystr, monstr, data.tm_mday, data.tm_hour+HOUR_OFFSET, data.tm_min, data.tm_sec, data.tm_year+YEAR_OFFSET);
+            sprintf(my_timestamp,"Ostatnie resetowanie licznika:   %s %s  %d %02d:%02d:%02d %ld\n",
+                    daystr, monstr, data.tm_mday, data.tm_hour+HOUR_OFFSET, data.tm_min, data.tm_sec, data.tm_year+YEAR_OFFSET);
         }
     }
 
@@ -129,8 +129,8 @@ static int keyboard_module_init(void)
 
     if (convert_dayweek(data.tm_wday, &daystr) && convert_month(data.tm_mon, &monstr))
     {
-    	sprintf(my_timestamp,"Last file modification:   %s %s  %d %02d:%02d:%02d %ld\n",
-    			daystr, monstr, data.tm_mday, data.tm_hour+HOUR_OFFSET, data.tm_min, data.tm_sec, data.tm_year+YEAR_OFFSET);
+        sprintf(my_timestamp,"Last file modification:   %s %s  %d %02d:%02d:%02d %ld\n",
+                daystr, monstr, data.tm_mday, data.tm_hour+HOUR_OFFSET, data.tm_min, data.tm_sec, data.tm_year+YEAR_OFFSET);
     }
 
     return request_irq(KBD_IRQ, kbd3_isr, IRQF_SHARED, "kbd3", (void *)kbd3_isr);
@@ -147,36 +147,36 @@ static int convert_dayweek(int day, char ** str)
 {
     int success = SUCCESS_FAIL;
 
-	if ( (str != NULL) && (day >= 0) && (day < DAY_AMOUNT) )
-	{
-		switch (day)
-		{
-			case (0u):
-					*str = "Sun";
-					break;
-			case (1u):
-					*str = "Mon";
-					break;
-			case (2u):
-					*str = "Tue";
-					break;
-			case (3u):
-					*str = "Wed";
-					break;
-			case (4u):
-					*str = "Thu";
-					break;
-			case (5u):
-					*str = "Fri";
-					break;
-			case (6u):
-					*str = "Sat";
-					break;
-			default:
-				break;
-		}
-		success = SUCCESS_OK;
-	}
+    if ( (str != NULL) && (day >= 0) && (day < DAY_AMOUNT) )
+    {
+        switch (day)
+        {
+            case (0u):
+                    *str = "Sun";
+                    break;
+            case (1u):
+                    *str = "Mon";
+                    break;
+            case (2u):
+                    *str = "Tue";
+                    break;
+            case (3u):
+                    *str = "Wed";
+                    break;
+            case (4u):
+                    *str = "Thu";
+                    break;
+            case (5u):
+                    *str = "Fri";
+                    break;
+            case (6u):
+                    *str = "Sat";
+                    break;
+            default:
+                break;
+        }
+        success = SUCCESS_OK;
+    }
 
     return success;
 }
@@ -185,51 +185,51 @@ static int convert_month(int mon, char ** str)
 {
     int success = SUCCESS_FAIL;
 
-	if ( (str != NULL) && (mon >= 0) && (mon < MON_AMOUNT) )
-	{
-		switch (mon)
-		{
-			case (0u):
-					*str = "Jan";
-					break;
-			case (1u):
-					*str = "Feb";
-					break;
-			case (2u):
-					*str = "Mar";
-					break;
-			case (3u):
-					*str = "Apr";
-					break;
-			case (4u):
-					*str = "May";
-					break;
-			case (5u):
-					*str = "Jun";
-					break;
-			case (6u):
-					*str = "Jul";
-					break;
-			case (7u):
-					*str = "Aug";
-					break;
-			case (8u):
-					*str = "Sep";
-					break;
-			case (9u):
-					*str = "Oct";
-					break;
-			case (10u):
-					*str = "Nov";
-					break;
-			case (11u):
-					*str = "Dec";
-					break;
-			default:
-				break;
-		}
-		success = SUCCESS_OK;
-	}
+    if ( (str != NULL) && (mon >= 0) && (mon < MON_AMOUNT) )
+    {
+        switch (mon)
+        {
+            case (0u):
+                    *str = "Jan";
+                    break;
+            case (1u):
+                    *str = "Feb";
+                    break;
+            case (2u):
+                    *str = "Mar";
+                    break;
+            case (3u):
+                    *str = "Apr";
+                    break;
+            case (4u):
+                    *str = "May";
+                    break;
+            case (5u):
+                    *str = "Jun";
+                    break;
+            case (6u):
+                    *str = "Jul";
+                    break;
+            case (7u):
+                    *str = "Aug";
+                    break;
+            case (8u):
+                    *str = "Sep";
+                    break;
+            case (9u):
+                    *str = "Oct";
+                    break;
+            case (10u):
+                    *str = "Nov";
+                    break;
+            case (11u):
+                    *str = "Dec";
+                    break;
+            default:
+                break;
+        }
+        success = SUCCESS_OK;
+    }
 
     return success;
 }

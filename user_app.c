@@ -72,7 +72,7 @@ int main(void)
         }
         else
         {
-        	input_user = 0;
+            input_user = 0;
         }
 
         fclose(fd);
