@@ -9,33 +9,35 @@
 #include <time.h>
 #include <sys/sysmacros.h>
 
-
-#define NAME_DATA "counter = "
+#define BUFSIZE     100u
+#define INPUT_CHECK '1'
+#define INPUT_RESET '2'
+#define INPUT_LAST  '3'
 
 static int get_number(FILE * ptr, int * number);
 
 int main(void)
 {
-    char buf[100];
-    char str[100];
+    char buf[BUFSIZE];
+    char str[BUFSIZE];
     FILE * fd;
 
     struct stat sb;
-
-    int input_user, c;
+    char input_user = 1;
+    char c;
     int data;
 
     printf("Witaj!\n");
 
     lstat("/proc/mydev", &sb);
 
-    while(1)
+    while(input_user)
     {
         fd = fopen("/proc/mydev", "a+r");
 
         if (fd != NULL)
         {
-            fseek(fd, 0 ,SEEK_SET);
+            fseek(fd, 0u ,SEEK_SET);
         }
 
         printf("Podaj rodzaj akcji do wykonania wciskajac numer. Inny przycisk kończy dzialanie. \n"
@@ -43,38 +45,34 @@ int main(void)
                 "[2]: Zresetuj licznik\n"
                 "[3]: Data ostatniego resetu\n"
                 "Wybrana wartosc: ");
-        scanf("%d",&input_user);
+        scanf("%c",&input_user);
 
         while ((c = getchar()) != '\n' && c != EOF);
 
-        if (input_user == 1u)
+        if (input_user == INPUT_CHECK)
         {
             if ( get_number(fd, &data) )
             {
-                printf("\nAktualna wartosc licznika = %d\n", data);
+                printf("\n\nAktualna wartosc licznika = %d\n\n", data);
             }
-
-
         }
-        else if (input_user == 2u)
+        else if (input_user == INPUT_RESET)
         {
             fputs("Set zero", fd);
             fputc('\0',fd);
+            printf("\n\nResetowanie licznika\n\n");
         }
-        else if (input_user == 3u)
+        else if (input_user == INPUT_LAST)
         {
-            fgets(str, 100, fd);
-            if (NULL != fgets(str, 100, fd))
+            fgets(str, BUFSIZE, fd);              /* row with counter value*/
+            if (NULL != fgets(str, BUFSIZE, fd))
             {
-                printf("\n%s\n\n", str);
+                printf("\n\n%s\n\n", str);
             }
-
-            printf("Last file modification:   %s", ctime(&sb.st_mtime));
-
         }
         else
         {
-            break;
+        	input_user = 0;
         }
 
         fclose(fd);

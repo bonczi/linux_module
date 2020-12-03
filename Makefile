@@ -1,4 +1,4 @@
-obj-m += new2.o
+obj-m += my_key.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

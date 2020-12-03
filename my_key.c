@@ -15,8 +15,17 @@
 #include <linux/timekeeping.h>
 
 
-#define BUFSIZE  100
-#define KBD_IRQ             1       /* IRQ number for keyboard (i8042) */
+#define BUFSIZE      100
+#define KBD_IRQ      1       /* IRQ number for keyboard (i8042) */
+#define MON_AMOUNT   12
+#define DAY_AMOUNT   7
+
+#define SUCCESS_FAIL 0u
+#define SUCCESS_OK   1u
+#define STRCMP_OK    0u
+
+#define YEAR_OFFSET 1900
+#define HOUR_OFFSET 1
  
 MODULE_AUTHOR("Piotr Bak");
  
@@ -73,27 +82,25 @@ static ssize_t mywrite(struct file *file, const char __user *ubuf,size_t count, 
     int c;
     char buf[BUFSIZE];
     struct timeval t;
-    struct tm broken;
+    struct tm data;
 
     if(*ppos > 0 || count > BUFSIZE)
         return -EFAULT;
     if(copy_from_user(buf,ubuf,count))
         return -EFAULT;
 
-    if (strcmp(buf,"Set zero") == 0u)
+    if (strcmp(buf,"Set zero") == STRCMP_OK)
     {
         counter_key = 0;
 
         do_gettimeofday(&t);
-        time64_to_tm(t.tv_sec, 0, &broken);
+        time64_to_tm(t.tv_sec, 0, &data);
 
-        if (convert_dayweek(broken.tm_wday, &daystr) && convert_month(broken.tm_mon, &monstr))
+        if (convert_dayweek(data.tm_wday, &daystr) && convert_month(data.tm_mon, &monstr))
         {
-        	sprintf(my_timestamp,"Last file modification:   %s %s  %d %02d:%02d:%02d %ld\n",
-        			daystr, monstr, broken.tm_mday, broken.tm_hour+1, broken.tm_min, broken.tm_sec, broken.tm_year+1900);
+        	sprintf(my_timestamp,"Ostatnie resetowanie licznika:   %s %s  %d %02d:%02d:%02d %ld\n",
+        			daystr, monstr, data.tm_mday, data.tm_hour+HOUR_OFFSET, data.tm_min, data.tm_sec, data.tm_year+YEAR_OFFSET);
         }
-
-
     }
 
     *ppos = strlen(buf);
@@ -109,40 +116,38 @@ static irqreturn_t kbd3_isr(int irq, void *dev_id)
     return IRQ_HANDLED;
 } 
  
-static int simple_init(void)
+static int keyboard_module_init(void)
 {
     struct timeval t;
-    struct tm broken;
+    struct tm data;
 
     ent=proc_create("mydev",0660,NULL,&myops);
-    printk(KERN_ALERT "hello...\n");
+    printk(KERN_ALERT "keyboard_module_counter opening\n");
 
     do_gettimeofday(&t);
-    time64_to_tm(t.tv_sec, 0, &broken);
+    time64_to_tm(t.tv_sec, 0, &data);
 
-    if (convert_dayweek(broken.tm_wday, &daystr) && convert_month(broken.tm_mon, &monstr))
+    if (convert_dayweek(data.tm_wday, &daystr) && convert_month(data.tm_mon, &monstr))
     {
     	sprintf(my_timestamp,"Last file modification:   %s %s  %d %02d:%02d:%02d %ld\n",
-    			daystr, monstr, broken.tm_mday, broken.tm_hour+1, broken.tm_min, broken.tm_sec, broken.tm_year+1900);
+    			daystr, monstr, data.tm_mday, data.tm_hour+HOUR_OFFSET, data.tm_min, data.tm_sec, data.tm_year+YEAR_OFFSET);
     }
 
     return request_irq(KBD_IRQ, kbd3_isr, IRQF_SHARED, "kbd3", (void *)kbd3_isr);
 }
  
-static void simple_cleanup(void)
+static void keyboard_module_cleanup(void)
 {
-    printk(KERN_WARNING "bye ...\n");
+    printk(KERN_WARNING "keyboard_module_counter closing\n");
     proc_remove(ent);
     free_irq(KBD_IRQ, (void *)kbd3_isr);
 }
  
-
-
 static int convert_dayweek(int day, char ** str)
 {
-    int success = 0u;
+    int success = SUCCESS_FAIL;
 
-	if ( (str != NULL) && (day >= 0) && (day < 7) )
+	if ( (str != NULL) && (day >= 0) && (day < DAY_AMOUNT) )
 	{
 		switch (day)
 		{
@@ -170,19 +175,17 @@ static int convert_dayweek(int day, char ** str)
 			default:
 				break;
 		}
-		success = 1u;
+		success = SUCCESS_OK;
 	}
 
     return success;
 }
 
-
-
 static int convert_month(int mon, char ** str)
 {
-    int success = 0u;
+    int success = SUCCESS_FAIL;
 
-	if ( (str != NULL) && (mon >= 0) && (mon < 12) )
+	if ( (str != NULL) && (mon >= 0) && (mon < MON_AMOUNT) )
 	{
 		switch (mon)
 		{
@@ -225,12 +228,12 @@ static int convert_month(int mon, char ** str)
 			default:
 				break;
 		}
-		success = 1u;
+		success = SUCCESS_OK;
 	}
 
     return success;
 }
 
-module_init(simple_init);
-module_exit(simple_cleanup);
+module_init(keyboard_module_init);
+module_exit(keyboard_module_cleanup);
 
